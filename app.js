@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 app.use(express.json());
-
+app.use(express.static('./public'));
 //middleware
 app.use(morgan('dev'));
 app.use((req, res, next) => {
@@ -27,7 +27,4 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 //start server
-const port = 3000;
-app.listen(port, () => {
-  console.log('app running on port  ' + port + '...');
-});
+module.exports = app;

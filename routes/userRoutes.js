@@ -1,38 +1,14 @@
 const express = require('express');
-
-const getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'this is not define'
-  });
-};
-const getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'this is not define'
-  });
-};
-const createUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'this is not define'
-  });
-};
-const updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'this is not define'
-  });
-};
+const userController = require('./../controllers/userController');
 const router = express.Router();
 
 router
   .route('/')
-  .get(getAllUsers)
-  .post(createUser);
+  .get(userController.getAllUsers)
+  .post(userController.createUser);
 router
   .route('/:id')
-  .get(getUser)
-  .patch(updateUser);
+  .get(userController.getUser)
+  .patch(userController.updateUser);
 
 module.exports = router;

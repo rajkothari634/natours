@@ -1,4 +1,5 @@
 const User = require('./../models/userModel');
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 
 const signToken = (id) => {
@@ -70,20 +71,92 @@ exports.login = async (req, res, next) => {
 };
 
 exports.protect = async (req, res, next) => {
-  // getting token
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-  if (!token) {
+  try {
+    // getting token
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    if (!token) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'give token',
+      });
+      return;
+    }
+    //verification of token
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'user not found',
+      });
+      return;
+    }
+    if (freshUser.changePasswordAfter(decoded.iat)) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'password is changed',
+      });
+      return;
+    }
+
+    // GRANT ACCESS TO PROTECTED ROUTE
+    req.user = freshUser;
+    next();
+  } catch (err) {}
+};
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    //roles ['admin','lead-guide']
+    if (!roles.includes(req.user.role)) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'u cant delete tour',
+      });
+      return;
+    }
+    next();
+  };
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ meail: req.body.email });
+    if (!user) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'user not found',
+      });
+      return;
+    }
+    const resetToken = user.createPasswordResetToken();
+    await user.save({
+      validateBeforeSave: false,
+    });
+    next();
+  } catch (err) {
     res.status(400).json({
       status: 'fail',
-      message: 'give token',
+      message: err,
     });
+    return;
   }
-  //verification of token
-  jwt.verify();
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    next();
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+    return;
+  }
 };

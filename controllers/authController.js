@@ -148,7 +148,7 @@ exports.forgotPassword = async (req, res, next) => {
     const message = `forget ur password ? submit a PATCH request with your new password and passwordConfirm to ${resetURL}`;
     console.log('forget' + 'nmay be');
     const result = await sendEmail({
-      email: user.email,
+      email: 'rajkothari634@gmail.com',
       subject: 'your Password reset token (valid for 10 min)',
       message,
     });
@@ -158,6 +158,7 @@ exports.forgotPassword = async (req, res, next) => {
       message: 'Token sent to email',
     });
   } catch (err) {
+    console.log('goes to catch');
     res.status(400).json({
       status: 'fail',
       message: err,

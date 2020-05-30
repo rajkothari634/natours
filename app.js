@@ -13,9 +13,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.get('/', (req, res) => {
-//   res.status(200).json({ message: 'hello from server side', app: 'Natours' });
-// });
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'hello from server side', app: 'Natours' });
+});
 
 // app.post('/', (req, res) => {
 //   res.send('post method is running');
